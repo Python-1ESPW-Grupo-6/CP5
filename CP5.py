@@ -82,67 +82,84 @@ def atualizar_tarefa():
     while True:
         try:
             num_tarefa = int(input("Digite o número da tarefa que deseja atualizar: ")) - 1
-        except ValueError:
-            erro()
-        paragrafo()
-        if 0 <= num_tarefa < len(tarefas):
-            tarefa = tarefas[num_tarefa]
-            print("Atualize os campos (deixe em branco para manter os valores atuais):")
+            paragrafo()
+            if 0 <= num_tarefa < len(tarefas):
+                tarefa = tarefas[num_tarefa]
+                print("Atualize os campos (deixe em branco para manter os valores atuais):")
 
-            tarefa['descricao'] = input("Nova descrição da tarefa: ") or tarefa['descricao']
+                tarefa['descricao'] = input("Nova descrição da tarefa: ") or tarefa['descricao']
 
-            while True:
-                try:
-                    nova_data_inicial = input("Nova data inicial (dd/mm/aaaa): ")
-                    if nova_data_inicial != "":
-                        tarefa['data_inicial'] = datetime.strptime(nova_data_inicial, "%d/%m/%Y").date()
-                        tarefa['data_inicial'] = tarefa['data_inicial'].strftime("%d/%m/%Y")
-                        break
-                    else:
-                        break
-                except ValueError:
-                    erro()
-
-            while True:
-                try:
-                    nova_data_final = input("Nova data final (dd/mm/aaaa): ")
-                    if nova_data_final != "":
-                        tarefa['data_final'] = datetime.strptime(nova_data_final, "%d/%m/%Y").date()
-                        tarefa['data_final'] = tarefa['data_final'].strftime("%d/%m/%Y")
-                        if tarefa['data_final'] < tarefa['data_inicial']:
-                            print("A data final da nova tarefa não pode ser antes da data inicial, por favor revise sua tarefa")
+                while True:
+                    try:
+                        nova_data_inicial = input("Nova data inicial (dd/mm/aaaa): ")
+                        if nova_data_inicial != "":
+                            tarefa['data_inicial'] = datetime.strptime(nova_data_inicial, "%d/%m/%Y").date()
+                            tarefa['data_inicial'] = tarefa['data_inicial'].strftime("%d/%m/%Y")
+                            break
                         else:
                             break
-                    else:
-                        break
-                except ValueError:
-                    erro()
+                    except ValueError:
+                        erro()
 
-            while True:
-                nova_complet_real = input("Novo percentual de completude real (apenas números): ")
-                if nova_complet_real == "":
-                        break
-                try:
-                    tarefa['completude_real'] = float(nova_complet_real)
-                    break
-                except ValueError:
-                    erro()
+                while True:
+                    try:
+                        nova_data_final = input("Nova data final (dd/mm/aaaa): ")
+                        if nova_data_final != "":
+                            tarefa['data_final'] = datetime.strptime(nova_data_final, "%d/%m/%Y").date()
+                            tarefa['data_final'] = tarefa['data_final'].strftime("%d/%m/%Y")
+                            if tarefa['data_final'] < tarefa['data_inicial']:
+                                print("A data final da nova tarefa não pode ser antes da data inicial, por favor revise sua tarefa")
+                            else:
+                                break
+                        else:
+                            break
+                    except ValueError:
+                        erro()
 
-            while True:
-                nova_complet_plan = input("Novo percentual de completude planejada (apenas números): ")
-                if nova_complet_plan == "":
+                while True:
+                    nova_complet_real = input("Novo percentual de completude real (apenas números): ")
+                    if nova_complet_real == "":
+                            break
+                    try:
+                        tarefa['completude_real'] = float(nova_complet_real)
                         break
-                try:
-                    tarefa['completude_planejada'] = float(nova_complet_plan)
-                    break
-                except ValueError:
-                    erro()
-                                
-            tarefa['responsavel'] = input(f"Novo responsável ({tarefa['responsavel']}): ") or tarefa['responsavel']
-            print("Tarefa atualizada com sucesso.")
-            break
-        else:
-            print("Número de tarefa inexistente.")
+                    except ValueError:
+                        erro()
+
+                while True:
+                    nova_complet_plan = input("Novo percentual de completude planejada (apenas números): ")
+                    if nova_complet_plan == "":
+                            break
+                    try:
+                        tarefa['completude_planejada'] = float(nova_complet_plan)
+                        break
+                    except ValueError:
+                        erro()
+                                    
+                tarefa['responsavel'] = input(f"Novo responsável ({tarefa['responsavel']}): ") or tarefa['responsavel']
+
+                plano_atraso = input(f"Insira um  plano caso a tarefa esteja atrasada ou vá atrasar (deixei em branco caso não seja necessário): ")
+                if plano_atraso != "":
+                    tarefa['plano'] = plano_atraso
+
+                    
+                while True:
+                    try:
+                        conclusao_tarefa = input(f"Deseja marcar a tarefa como concluida? 'Sim' ou vazio para continuar: ").capitalize()
+                        if conclusao_tarefa == "Sim":
+                            tarefa['completude_real'] = tarefa['completude_planejada']
+                            tarefa['concluida'] = conclusao_tarefa
+                        break
+                    except ValueError:
+                        erro()
+
+                print("Tarefa atualizada com sucesso.")
+
+                break
+            else:
+                print("Número de tarefa inexistente.")
+        except ValueError:
+            erro()
 
 # Função para listar tarefas
 def listar_tarefas():
@@ -156,6 +173,13 @@ def listar_tarefas():
         print(f"Completude real: {tarefa['completude_real']:.0f}%")
         print(f"Completude planejada: {tarefa['completude_planejada']:.0f}%")
         print(f"Responsável: {tarefa['responsavel']}")
+        data_final = datetime.strptime(tarefa['data_final'], '%d/%m/%Y')
+        if data_final < datetime.now() and 'concluida' not in tarefa:
+            print('Esta tarefa está atrasada!')
+        if 'plano' in tarefa:
+            print(f"Plano: {tarefa['plano']}")
+        if 'concluida' in tarefa:
+            print("Tarefa concluida")
         paragrafo()
 
 # Função para resumo da operação
